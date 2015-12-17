@@ -2,33 +2,61 @@ package com.mowen.androidedituedemo;
 
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 public class MainActivity extends Activity {
 
+    private Handler mHandler;
+    private TextView textView;
+    private ScrollView scrollView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
 //        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
+        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
 
+        mHandler = new Handler();
         EditText etContent = (EditText) findViewById(R.id.etContent);
+        textView = (TextView) findViewById(R.id.flagUp);
+        scrollView = (ScrollView) findViewById(R.id.scrollView);
 //        etContent.setImeOptions(EditorInfo.);
-//        etContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        etContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View v, boolean hasFocus) {
+                if(hasFocus) {
+                    mHandler.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            scrollView.scrollTo(0, ScrollView.FOCUS_DOWN);
+                        }
+                    }, 300);
+                }
+            }
+        });
+
+//        View.OnClickListener onClickListener = new View.OnClickListener() {
 //            @Override
-//            public void onFocusChange(View v, boolean hasFocus) {
-//                if(!hasFocus) {
-//                    hideKeyboard(v);
-//                }
+//            public void onClick(View v) {
+//                mHandler.postDelayed(new Runnable() {
+//                    @Override
+//                    public void run() {
+//                        scrollView.scrollTo(0, 400);
+//                    }
+//                }, 300);
 //            }
-//        });
+//        };
+//        etContent.setOnClickListener(onClickListener);
     }
+
+
 
     public void hideKeyboard(View view) {
         InputMethodManager inputMethodManager =(InputMethodManager)getSystemService(Activity.INPUT_METHOD_SERVICE);

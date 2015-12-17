@@ -10,8 +10,9 @@
     tools:context="com.mowen.androidedituedemo.MainActivity">
 
     <ScrollView
+        android:id="@+id/scrollView"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:fillViewport="true">
         <LinearLayout
             android:layout_width="match_parent"
@@ -28,6 +29,12 @@
                     android:layout_height="wrap_content"
                     android:text="hahahhahhadkkd"/>
             </LinearLayout>
+
+            <TextView
+                android:id="@+id/flagUp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="中国"/>
 
             <EditText
                 android:id="@+id/etContent"
