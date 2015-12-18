@@ -1,61 +1,74 @@
 package com.mowen.androidedituedemo;
 
 import android.app.Activity;
+import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.WindowManager;
 import android.view.inputmethod.InputMethodManager;
+import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class MainActivity extends Activity {
 
     private Handler mHandler;
-    private TextView textView;
     private ScrollView scrollView;
+    private Button button;
+    private EditText etContent;
+    private View divider;
+    private boolean isOpened = false;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-//        getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN | WindowManager.LayoutParams.SOFT_INPUT_ADJUST_UNSPECIFIED);
         getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE);
-
         mHandler = new Handler();
-        EditText etContent = (EditText) findViewById(R.id.etContent);
-        textView = (TextView) findViewById(R.id.flagUp);
+        etContent = (EditText) findViewById(R.id.etContent);
         scrollView = (ScrollView) findViewById(R.id.scrollView);
-//        etContent.setImeOptions(EditorInfo.);
-        etContent.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        divider = findViewById(R.id.divider);
+
+        button = (Button) findViewById(R.id.button);
+        setListenerToRootView();
+
+    }
+
+    //监控软键盘的弹出和隐藏,并做相应的逻辑处理
+    public void setListenerToRootView(){
+        final View activityRootView = getWindow().getDecorView().findViewById(android.R.id.content);
+        activityRootView.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
-            public void onFocusChange(View v, boolean hasFocus) {
-                if(hasFocus) {
-                    mHandler.postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            scrollView.scrollTo(0, ScrollView.FOCUS_DOWN);
+            public void onGlobalLayout() {
+
+                int heightDiff = activityRootView.getRootView().getHeight() - activityRootView.getHeight();
+                if (heightDiff > 100 ) { // 99% of the time the height diff will be due to a keyboard.
+
+                    if(isOpened == false){
+                        button.setVisibility(View.GONE);
+                        if(etContent.hasFocus()) {
+                            mHandler.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    scrollView.smoothScrollTo(0, (int) divider.getY());
+                                }
+                            },300);
                         }
-                    }, 300);
+                    }
+                    isOpened = true;
+                }else if(isOpened == true){
+                    button.setVisibility(View.VISIBLE);
+                    isOpened = false;
                 }
             }
         });
-
-//        View.OnClickListener onClickListener = new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                mHandler.postDelayed(new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        scrollView.scrollTo(0, 400);
-//                    }
-//                }, 300);
-//            }
-//        };
-//        etContent.setOnClickListener(onClickListener);
     }
-
 
 
     public void hideKeyboard(View view) {
@@ -100,66 +113,4 @@ public class MainActivity extends Activity {
         }
         return false;
     }
-
-
-    /**
-     getWindow().setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_ADJUST_PAN);
-
-
-
-     OnClickListener onClickListener = new OnClickListener() {
-    @Override
-    public void onClick(View v) {
-    ((View) etComment.getParent()).setOnClickListener(null);
-    mHandler.postDelayed(new Runnable() {
-    @Override
-    public void run() {
-    if(divdeBindTripTypeArea.getVisibility() == View.VISIBLE) {
-    scrollView.scrollTo(0, divdeBindTripTypeArea.getHeight());
-    } else {
-    scrollView.scrollTo(0, divdeTag.getHeight());
-    }
-    }
-    }, 300);
-    }
-    };
-     etComment.setOnClickListener(onClickListener);
-
-     //解决软键盘弹出和隐藏问题
-     @Override
-     public boolean dispatchTouchEvent(MotionEvent ev){
-     if (ev.getAction() == MotionEvent.ACTION_DOWN) {
-     View v = getCurrentFocus();
-     if (isShouldHideInput(v, ev)) {
-     hideSoftInput();
-     }
-     return super.dispatchTouchEvent(ev);
-     }
-     // 必不可少，否则所有的组件都不会有TouchEvent了
-     if (getWindow().superDispatchTouchEvent(ev)) {
-     return true;
-     }
-     return onTouchEvent(ev);
-     }
-
-     public  boolean isShouldHideInput(View v, MotionEvent event) {
-     if (v != null && (v instanceof EditText)) {
-     int[] leftTop = { 0, 0 };
-     //获取输入框当前的location位置
-     v.getLocationInWindow(leftTop);
-     int left = leftTop[0];
-     int top = leftTop[1];
-     int bottom = top + v.getHeight();
-     int right = left + v.getWidth();
-     if (event.getX() > left && event.getX() < right
-     && event.getY() > top && event.getY() < bottom) {
-     // 点击的是输入框区域，保留点击EditText的事件
-     return false;
-     } else {
-     return true;
-     }
-     }
-     return false;
-     }
-     * **/
 }
